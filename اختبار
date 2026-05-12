@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار القاموس الشخصي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* بطاقة السؤال */
+        .quiz-card {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .word-display {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .english-word {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1a472a;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        /* أزرار الصوت */
+        .speaker-btn {
+            background: #2e7d32;
+            border: none;
+            color: white;
+            font-size: 28px;
+            padding: 12px 20px;
+            border-radius: 60px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speaker-btn:hover {
+            transform: scale(1.05);
+            background: #1b5e20;
+        }
+
+        /* الخيارات */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f1f3f4;
+            border: 2px solid #ddd;
+            border-radius: 60px;
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            text-align: right;
+        }
+
+        .option:hover {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+            transform: translateX(-5px);
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #2e7d32;
+        }
+
+        .option.wrong {
+            background: #f44336;
+            color: white;
+            border-color: #c62828;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* شريط التقدم */
+        .progress-bar {
+            background: #ddd;
+            border-radius: 30px;
+            height: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #2e7d32;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        /* الأزرار */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1b5e20;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #f57c00;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        /* قائمة الأخطاء */
+        .mistakes-panel {
+            background: white;
+            border-radius: 30px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mistakes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff9800;
+        }
+
+        .mistakes-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .mistake-item {
+            background: #fff3e0;
+            border-radius: 15px;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .mistake-word {
+            font-weight: bold;
+            color: #e65100;
+            font-size: 18px;
+        }
+
+        .mistake-correct {
+            color: #2e7d32;
+        }
+
+        .review-btn {
+            background: #ff9800;
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .empty-mistakes {
+            text-align: center;
+            color: #aaa;
+            padding: 30px;
+        }
+
+        /* النتيجة النهائية */
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 40px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin: 20px 0;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 18px;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 30px;
+        }
+
+        .feedback-correct {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .feedback-wrong {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        @media (max-width: 600px) {
+            .english-word { font-size: 32px; }
+            .option { font-size: 14px; padding: 12px 18px; }
+            .stat-box { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stats">
+            <div class="stat-box">📊 السؤال: <span id="currentQuestion">1</span> / <span id="totalQuestions">0</span></div>
+            <div class="stat-box">✅ الصحيح: <span id="correctCount">0</span></div>
+            <div class="stat-box">❌ الخطأ: <span id="wrongCount">0</span></div>
+            <div class="stat-box">📈 النسبة: <span id="percentCorrect">0</span>%</div>
+        </div>
+
+        <div class="quiz-card">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="word-display">
+                <div class="english-word" id="englishWord">Loading...</div>
+                <button class="speaker-btn" id="speakerBtn" onclick="speakWord()">
+                    🔊 استمع للنطق
+                </button>
+            </div>
+
+            <div class="options" id="optionsContainer"></div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">التالي ➡️</button>
+                <button class="btn btn-secondary" id="restartBtn" onclick="restartQuiz()">🔄 إعادة الاختبار</button>
+            </div>
+        </div>
+
+        <div class="mistakes-panel" id="mistakesPanel">
+            <div class="mistakes-header">
+                <span>📝 قائمة الكلمات التي أخطأت فيها</span>
+                <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="clearMistakes()">🗑️ مسح القائمة</button>
+            </div>
+            <div class="mistakes-list" id="mistakesList">
+                <div class="empty-mistakes">✨ لا توجد أخطاء بعد! ✨</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultModal" class="result-modal hide">
+        <div class="result-card">
+            <h2>🎉 انتهى الاختبار 🎉</h2>
+            <div class="score" id="finalScore">0/0</div>
+            <p id="finalMessage"></p>
+            <button class="btn btn-primary" onclick="closeResultAndRestart()">إعادة الاختبار</button>
+        </div>
+    </div>
+
+    <script>
+        // ======================= القاموس الكامل (287 كلمة) =======================
+        const dictionary = [
+            ["Abandoned", "مهجور"], ["Ace", "خبير / ماهر / نابغة"], ["Acknowledging", "اعتراف"],
+            ["Acid", "حمض"], ["Addresssing", "معالجة / يخاطب"], ["Admire", "يعجب / يقدّر"],
+            ["Advisor", "مستشار"], ["Ambition", "طموح"], ["Anchor", "مرساة / يرسو"],
+            ["Anxious", "متلهف / قلق"], ["Approach", "نهج / طريقة - يقترب من"], ["Arise", "تنشأ / تظهر"],
+            ["Arrived", "حلّ / وصل"], ["Attempt", "محاولة / يحاول"], ["Augment", "يعزز / يزيد"],
+            ["Authority", "سلطة"], ["Badges", "شارات / أوسمة"], ["Bark", "لحاء الشجرة"],
+            ["Basement", "سرداب / قبو"], ["Beady", "صغير ومستدير ولامع"], ["Beacon", "منارة"],
+            ["Beats", "دقات / إيقاعات / يهزم"], ["Behalf", "نيابة عن"], ["Beliefs", "معتقدات / عقائد"],
+            ["Benefit", "فائدة / منفعة / يستفيد"], ["Bet", "رهان / يراهن"], ["Betrayal", "خيانة"],
+            ["Bidding", "مزايدة / أمر"], ["Blame", "اللوم / يلوم"], ["Blessing", "بركة / نعمة"],
+            ["Blizzard", "عاصفة ثلجية"], ["Bloom", "تفتح / ازدهار / يزهر"], ["Blow", "ينفخ / ضربة / يضرب"],
+            ["Boomerang", "بوميرانج / ينعكس"], ["Briefcase", "حقيبة"], ["Brutality", "وحشية"],
+            ["Built", "تُبنى / بُنيت"], ["Burgeoning", "مزدهر"], ["Bursting", "منفجر / ممتلئ لدرجة الانفجار"],
+            ["Cackling", "قهقهة"], ["Cadet", "ملازم مبتدئ"], ["Cell", "خلية / زنزانة"],
+            ["Certain", "متأكد / مؤكد"], ["Chatting", "ثرثارة / دردشة"], ["Choker", "عقد ضيق / يخنق"],
+            ["Civilization", "حضارة"], ["Clash", "تصادم / اشتباك / يتصادم"], ["Cleave", "يشق / يلتصق"],
+            ["Clothesline", "حبل غسيل"], ["Clue", "فكرة / دليل"], ["Coffers", "خزائن مالية"],
+            ["Colony", "مستعمرة"], ["Commodity", "سلعة"], ["Concealment", "إخفاء"],
+            ["Conquer", "يغزو / يتغلب على"], ["Consequences", "عواقب"], ["Consider", "يعتبر"],
+            ["Constantly", "باستمرار"], ["Continent", "قارة"], ["Convoy", "قافلة"],
+            ["Convinced", "مقتنع"], ["Coordinates", "إحداثيات / يحدد إحداثيات"], ["Corridor", "ممر"],
+            ["Corroded", "متآكل / صدئ"], ["Cracks", "شقوق / ينكسر / يتصدع"], ["Crane", "رافعة / يتطاول"],
+            ["Creations", "إبداعات / مخلوقات"], ["Crossed", "عبر / متقاطع"], ["Crumbled", "انهار / تفتت"],
+            ["Cryptic", "غامض / مشفر"], ["Culture", "ثقافة / حضارة"], ["Dazed", "مذهول"],
+            ["Defiled", "دنّس / نجّس"], ["Defiance", "تحدٍ"], ["Den", "عرين"],
+            ["Descended", "ينحدر / ينتمي"], ["Devilish", "شيطاني"], ["Discontent", "استياء / غير راضٍ"],
+            ["Discretion", "تقدير"], ["Discover", "يكتشف"], ["Disturbance", "إزعاج"],
+            ["Drum", "طبل / يطبل"], ["Effect", "تأثير / يؤثر"], ["Elaborate", "مفصل / يشرح بالتفصيل"],
+            ["Embrace", "يحتضن / يتبنى / احتضان"], ["Emitting", "تصدر / تطلق / منبعث"], ["Encounters", "لقاءات / يلتقي"],
+            ["Entice", "يغري"], ["Entrench", "يُرسخ / يُثبت"], ["Equal", "متساوٍ / نظير / يساوي"],
+            ["Eradicates", "يستأصل / يقضي على تمامًا"], ["Essence", "الجوهر / الخلاصة"], ["Established", "مؤسس / ثابت / أسّس"],
+            ["Ethereal", "أثيري / شفاف"], ["Eventually", "في النهاية / نهاية المطاف"], ["Execution", "إعدام"],
+            ["Existence", "وجود"], ["Exhibiting", "يُظهر / يعرض / معروض"], ["Expands", "يتمدد"],
+            ["Extinct", "منقرض"], ["Eyepatch", "رقعة عين"], ["Factions", "فصائل / جماعات"],
+            ["Faith", "إيمان / دين / عقيدة"], ["Fibers", "ألياف"], ["Figures", "أشخاص / هيئات / يظهر"],
+            ["Finalize", "يُنهي / يضع اللمسات النهائية"], ["Fingertips", "أطراف الأصابع"], ["Flagella", "أسواط"],
+            ["Fled", "هرب"], ["Fleeting", "يزول بسرعة / عابر"], ["Floating", "عائم / طفو"],
+            ["Flock", "سرب / قطيع / يحتشِد"], ["Flows", "يتدفق / ينساب / تدفق"], ["Forces", "قوات / قوى عسكرية / يُجبر"],
+            ["Forcing", "إجبار"], ["Frowns", "يعبس / يبدي استياءه / عبوس"], ["Further", "إضافي / زيادة / علاوة على ذلك"],
+            ["Generator", "مولد كهرباء"], ["Generous", "كريم"], ["Geyser", "ينبوع حار"],
+            ["Ginger", "زنجبيل"], ["Glints", "بريق / ومضات"], ["Glowing", "متوهج / مضيء / توهج"],
+            ["Grander", "أعظم / أكبر"], ["Granary", "صومعة"], ["Grin", "ابتسامة عريضة / يبتسم"],
+            ["Grinder", "مطحنة"], ["Grinding", "طحن / احتكاك"], ["Grit", "رمل / عزيمة / يصر على الأسنان"],
+            ["Guide", "دليل / يرشد"], ["Gurgling", "ق辅辅رة"], ["Haggling", "مساومة"],
+            ["Handful", "عدد قليل / حفنة"], ["Hire me", "استأجرني"], ["Hostile", "عدائي"],
+            ["Hovering", "يحوم / تمرير المؤشر"], ["Hut", "كوخ"], ["Impact", "تأثير / يؤثر"],
+            ["Immediate", "فوري / مباشر"], ["Impervious", "غير منفذ / محصن"], ["Impress", "يُعجب / يترك انطباعًا"],
+            ["Impressed", "منبهر / معجب / أُعجب"], ["Included", "شامل / متضمن / ضمّن"], ["Individual", "فردي / فرد"],
+            ["Inexplicably", "بشكل لا يفسر"], ["Ingest", "يبتلع"], ["Ingredients", "مكونات"],
+            ["Innately", "بالفطرة"], ["Inspection", "تفتيش / فحص"], ["Instinct", "غريزة"],
+            ["Institution", "مؤسسة"], ["Instructions", "تعليمات"], ["Intends", "ينوي / يعتزم"],
+            ["Intentions", "نوايا / مقاصد"], ["Interact", "يتفاعل"], ["Invigorated", "منعش / مفعم بالحيوية"],
+            ["Invokes", "يستدعي"], ["Irony", "سخرية"], ["Jaw", "فك / يثرثر"],
+            ["Jerk", "رعشة / شخص فظ / يهز فجأة"], ["Lacking", "يفتقر إلى / ناقص / نقص"], ["Limbless", "بلا أطراف"],
+            ["Managed", "تمكن"], ["Manifest", "يتجسد / يظهر / واضح"], ["Mantelpiece", "رف الموقد"],
+            ["Meadow", "مرج"], ["Meditated", "تأمل / فكر بعمق"], ["Migrating", "مهاجر / هجرة"],
+            ["Missiles", "صواريخ"], ["Mocked", "سخر / استهزأ بـ"], ["Monumental", "ضخم"],
+            ["Morals", "أخلاق"], ["Morph", "يتحول / يتشكل"], ["Mutagens", "مطفرات"],
+            ["Mysterious", "غامض"], ["Nest", "عش / يعشش"], ["Neutralize", "يحيد / يعادل / يبطل تأثير"],
+            ["Offense", "إساءة"], ["Offering", "تقديم / قربان"], ["Omnivore", "قارت"],
+            ["Ooze", "طين / وحل / يسيل"], ["Operation", "عملية"], ["Orbit", "مدار / يدور في مدار"],
+            ["Ordered", "مرتب / أمر"], ["Patience", "صبر"], ["Permission", "إذن"],
+            ["Permanently", "دائمًا"], ["Perplexes", "تحيّر / تثير الحيرة"], ["Perspective", "منظور / وجهة نظر"],
+            ["Pinnacle", "قمة / ذروة"], ["Policy", "سياسة"], ["Pondered", "تأمل / فكر مليًا"],
+            ["Prestige", "هيبة / مكانة اجتماعية"], ["Principles", "مبادئ"], ["Priorities", "أولويات"],
+            ["Programmed", "مبرمج / برمج"], ["Project", "مشروع / يخطط"], ["Prosperous", "مزدهر"],
+            ["Provides", "يوفر / يزود"], ["Proximity", "قرب / مجاورة"], ["Quaff", "يشرب بسرعة / جرعة سريعة"],
+            ["Raise", "يرفع / زيادة"], ["Rascals", "أوغاد"], ["Realize", "أدرك / يدرك"],
+            ["Reconciled", "متصالح / يوفي حساب / تصالح"], ["Relic", "قطعة أثرية"], ["Respond", "يستجيب / يرد"],
+            ["Retrace", "يعيد تتبع"], ["Riot", "أعمال شغب / يشتبك"], ["Ruins", "آثار / أنقاض"],
+            ["Rummaging", "بحث / قلب بحثًا"], ["Sacred", "مقدس"], ["Sacred bark", "لحاء مقدس"],
+            ["Scattered", "مبعثر / فرقت / بددت"], ["Scratch", "يخدش / خدش"], ["Searing", "محرق / لاذع / حرق"],
+            ["Secessionist", "انفصالي"], ["Sensation", "إحساس / شعور"], ["Sewers", "مجاري"],
+            ["Shame", "عار / يخزي"], ["Sharp", "حاد"], ["Shrug it off", "يتجاهل / يهز كتفيه"],
+            ["Shuffle", "يخلط / يجر رجليه / خلط"], ["Shyness", "خجل"], ["Sight", "بصر / مشهد / هدف تصويب"],
+            ["Sludge", "حمأة / طين ثقيل"], ["Slugs", "بزاقات"], ["Solar system", "النظام الشمسي"],
+            ["Sophisticated", "متطور / معقد"], ["Specialty", "تخصص / طبق مميز"], ["Species", "صنف / أنواع"],
+            ["Specific", "محدد"], ["Spice", "توابل / يتبل"], ["Spire", "قمة مدببة / برج مدبب"],
+            ["Spore", "بوغ"], ["Spruce", "شجرة التنوب / أنيق / يزيّن"], ["Stability", "استقرار"],
+            ["Stalk", "ساق نبات / يطارد خلسة"], ["Stance", "موقف"], ["Statue", "تمثال"],
+            ["Stature", "قامة / مكانة"], ["Stockpile", "مخزون استراتيجي / يخزن"], ["Strides", "خطوات واسعة / تقدم"],
+            ["Strings", "خيوط / أوتار"], ["Substance", "مادة / جوهر"], ["Suddenly", "فجأة"],
+            ["Suggests", "يقترح / يوحي"], ["Supreme", "أعلى / أسمى"], ["Surface", "سطح / يظهر"],
+            ["Surrounded", "محاط / أحاط"], ["Suspicion", "شك"], ["Sustain", "يحافظ / يواصل / يعيل"],
+            ["Symptoms", "أعراض"], ["Terrified", "مرعوب"], ["Testament", "وصية / شهادة"],
+            ["Thick", "كثيف / سميك"], ["Thoughts", "أفكار"], ["Throughout", "طوال / في كل مكان"],
+            ["Thunderclap", "قصفة الرعد / صوت الرعد"], ["Tidepool", "بركة مد وجزر"], ["Tied", "مربوط / ربط"],
+            ["Tracts", "مساحات / أراضٍ ممتدة"], ["Trait", "صفة / سمة"], ["Triggered", "مُطلق / سبب / أثار"],
+            ["Trip", "رحلة / تعثّر / يتعثّر"], ["Twisting", "متعرج / لف / تلوي"], ["Twitch", "تشنج / ارتعاش / يرتعش"],
+            ["Ugly", "قبيح"], ["Unify", "توحد / يتحد"], ["Useful", "مفيد"],
+            ["Valued", "قيّم"], ["Velvet", "مخمل / مخملي"], ["Victims", "ضحايا"],
+            ["Vigilant", "يقظ"], ["Vulnerable", "ضعيف / معرض للخطر"], ["Warmth", "دفء"],
+            ["Whispering", "هامِس / يهمس / همس"], ["Whom", "لمن / الذي"], ["Wide", "واسع / على نطاق واسع"],
+            ["Wild", "بري / جامح / البرية"], ["Winding", "متعرج / لف / التفاف"], ["Wisdom", "حكمة"],
+            ["Wish", "أمنية / يتمنى"], ["Witness", "شاهد / يشهد"], ["Wreck", "حطام / يحطم"],
+            ["Writhe", "يتلوى"], ["Yank", "ينتزع / يجذب بقوة"]
+        ];
+
+        // متغيرات الاختبار
+        let questions = [];
+        let currentIndex = 0;
+        let userAnswers = [];
+        let mistakes = [];
+        let answerLocked = false;
+        let correctCount = 0;
+        let wrongCount = 0;
+
+        // دالة خلط الأسئلة عشوائيًا
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // دالة إنشاء خيارات عشوائية لسؤال معين
+        function generateOptions(correctWord, correctMeaning) {
+            let optionsSet = new Set();
+            optionsSet.add(correctMeaning);
+            
+            // جمع معاني عشوائية من القاموس
+            while (optionsSet.size < 4) {
+                const randomIndex = Math.floor(Math.random() * dictionary.length);
+                const randomMeaning = dictionary[randomIndex][1];
+                if (randomMeaning !== correctMeaning) {
+                    optionsSet.add(randomMeaning);
+                }
+            }
+            
+            let options = Array.from(optionsSet);
+            // خلط ترتيب الخيارات
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+            return options;
+        }
+
+        // تجهيز جميع الأسئلة
+        function prepareQuestions() {
+            questions = [];
+            for (let i = 0; i < dictionary.length; i++) {
+                const word = dictionary[i][0];
+                const meaning = dictionary[i][1];
+                const options = generateOptions(word, meaning);
+                questions.push({
+                    word: word,
+                    correctMeaning: meaning,
+                    options: options
+                });
+            }
+            questions = shuffleArray(questions);
+            // إعادة ضبط العدادات
+            currentIndex = 0;
+            userAnswers = [];
+            mistakes = [];
+            answerLocked = false;
+            updateStats();
+            displayCurrentQuestion();
+            updateMistakesList();
+        }
+
+        // عرض السؤال الحالي
+        function displayCurrentQuestion() {
+            if (currentIndex >= questions.length) {
+                showResult();
+                return;
+            }
+            
+            const q = questions[currentIndex];
+            document.getElementById('englishWord').innerText = q.word;
+            document.getElementById('currentQuestion').innerText = currentIndex + 1;
+            document.getElementById('totalQuestions').innerText = questions.length;
+            
+            // عرض الخيارات
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerText = opt;
+                div.onclick = () => checkAnswer(opt, div);
+                container.appendChild(div);
+            });
+            
+            // إخفاء التغذية الراجعة
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            // تحديث شريط التقدم
+            const percent = (currentIndex / questions.length) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            
+            answerLocked = false;
+            
+            // إزالة فئة disabled من الخيارات إذا كانت موجودة
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('disabled', 'correct', 'wrong');
+            });
+            
+            // تحديث إحصائيات الأزرار
+            updateStats();
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer(selectedMeaning, element) {
+            if (answerLocked) return;
+            answerLocked = true;
+            
+            const q = questions[currentIndex];
+            const isCorrect = (selectedMeaning === q.correctMeaning);
+            
+            // تسجيل الإجابة
+            userAnswers.push({
+                word: q.word,
+                selected: selectedMeaning,
+                correct: q.correctMeaning,
+                isCorrect: isCorrect
+            });
+            
+            if (isCorrect) {
+                correctCount++;
+                const feedback = document.getElementById('feedback');
+                feedback.innerHTML = '✅ إجابة صحيحة! ✅';
+                feedback.className = 'feedback feedback-correct';
+                element.classList.add('correct');
+            } else {
+                wrongCount++;
+                // إضافة الخطأ إلى قائمة الأخطاء
+                mistakes.push({
+                    word: q.word,
+                    correctMeaning: q.correctMeaning,
+                    userAnswer: selectedMeaning
+                });
+                updateMistakesList();
+                
+                const feedback = document.getElementById('feedback');
+                feedback.innerHTML = `❌ خطأ! الإجابة الصحيحة: ${q.correctMeaning} ❌`;
+                feedback.className = 'feedback feedback-wrong';
+                element.classList.add('wrong');
+                
+                // إظهار الإجابة الصحيحة في الخيار الصحيح
+                document.querySelectorAll('.option').forEach(opt => {
+                    if (opt.innerText === q.correctMeaning) {
+                        opt.classList.add('correct');
+                    }
+                    opt.classList.add('disabled');
+                });
+            }
+            
+            updateStats();
+        }
+
+        // السؤال التالي
+        function nextQuestion() {
+            if (!answerLocked) {
+                const feedback = document.getElementById('feedback');
+                feedback.innerHTML = '⚠️ اختر إجابة أولاً ⚠️';
+                feedback.className = 'feedback feedback-wrong';
+                setTimeout(() => {
+                    if (feedback.innerHTML === '⚠️ اختر إجابة أولاً ⚠️') {
+                        feedback.innerHTML = '';
+                    }
+                }, 1000);
+                return;
+            }
+            
+            currentIndex++;
+            answerLocked = false;
+            
+            if (currentIndex < questions.length) {
+                displayCurrentQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // تحديث الإحصائيات
+        function updateStats() {
+            const totalAnswered = correctCount + wrongCount;
+            const percent = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+            document.getElementById('correctCount').innerText = correctCount;
+            document.getElementById('wrongCount').innerText = wrongCount;
+            document.getElementById('percentCorrect').innerText = percent;
+        }
+
+        // تحديث قائمة الأخطاء في اللوحة الجانبية
+        function updateMistakesList() {
+            const container = document.getElementById('mistakesList');
+            if (mistakes.length === 0) {
+                container.innerHTML = '<div class="empty-mistakes">✨ لا توجد أخطاء بعد! ✨</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            mistakes.forEach((mistake, idx) => {
+                const div = document.createElement('div');
+                div.className = 'mistake-item';
+                div.innerHTML = `
+                    <span class="mistake-word">${mistake.word}</span>
+                    <span class="mistake-correct">✅ ${mistake.correctMeaning}</span>
+                    <span class="mistake-wrong">❌ ${mistake.userAnswer}</span>
+                    <button class="review-btn" onclick="speakSpecificWord('${mistake.word}')">🔊 استمع</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // عرض النتيجة النهائية
+        function showResult() {
+            const total = questions.length;
+            const score = correctCount;
+            const percent = Math.round((score / total) * 100);
+            let message = '';
+            if (percent >= 90) message = '🎖️ ممتاز! مستوى متقدم 🎖️';
+            else if (percent >= 70) message = '🌟 جيد جداً! واصل التمرين 🌟';
+            else if (percent >= 50) message = '📚 جيد، لكن راجع الكلمات التي أخطأت فيها 📚';
+            else message = '📖 راجع القاموس جيداً ثم حاول مرة أخرى 📖';
+            
+            document.getElementById('finalScore').innerText = `${score}/${total}`;
+            document.getElementById('finalMessage').innerHTML = `${message}<br><br>📊 النسبة: ${percent}%`;
+            document.getElementById('resultModal').classList.remove('hide');
+        }
+
+        function closeResultAndRestart() {
+            document.getElementById('resultModal').classList.add('hide');
+            restartQuiz();
+        }
+
+        function restartQuiz() {
+            correctCount = 0;
+            wrongCount = 0;
+            currentIndex = 0;
+            mistakes = [];
+            userAnswers = [];
+            answerLocked = false;
+            prepareQuestions();
+            updateMistakesList();
+            updateStats();
+        }
+
+        function clearMistakes() {
+            mistakes = [];
+            updateMistakesList();
+        }
+
+        // النطق الصوتي باستخدام Web Speech API
+        function speakWord() {
+            const word = document.getElementById('englishWord').innerText;
+            speakSpecificWord(word);
+        }
+
+        function speakSpecificWord(word) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("متصفحك لا يدعم خاصية النطق الصوتي");
+            }
+        }
+
+        window.onload = () => {
+            prepareQuestions();
+        };
+    </script>
+</body>
+</html>
