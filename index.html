@@ -5,33 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>اختبار الكلمات الإنجليزية</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; text-align: center; }
-        h1 { color: #2c3e50; font-size: 1.5rem; }
-        .word-box { font-size: 2.5rem; font-weight: bold; color: #3498db; margin: 20px 0; }
-        input { width: 100%; padding: 12px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; margin-bottom: 10px; text-align: center; }
-        input:focus { border-color: #3498db; }
-        button { background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; transition: 0.3s; }
-        button:hover { background: #2980b9; }
-        .feedback { margin-top: 15px; font-weight: bold; height: 20px; }
-        .score { margin-top: 20px; font-size: 0.9rem; color: #7f8c8d; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 500px; text-align: center; border-top: 8px solid #3498db; }
+        h1 { color: #2c3e50; font-size: 1.4rem; margin-bottom: 20px; }
+        .word-box { font-size: 2.8rem; font-weight: bold; color: #3498db; margin: 25px 0; min-height: 60px; }
+        input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #e0e0e0; border-radius: 12px; box-sizing: border-box; outline: none; transition: 0.3s; margin-bottom: 15px; text-align: center; }
+        input:focus { border-color: #3498db; box-shadow: 0 0 8px rgba(52,152,219,0.2); }
+        button { background: #3498db; color: white; border: none; padding: 15px 25px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; width: 100%; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #2980b9; transform: translateY(-2px); }
+        .feedback { margin-top: 20px; font-weight: bold; min-height: 24px; font-size: 1.1rem; }
+        .score-box { margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.9rem; color: #7f8c8d; display: flex; justify-content: space-around; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>ما معنى هذه الكلمة؟</h1>
-    <div id="wordDisplay" class="word-box">جاري التحميل...</div>
+    <div id="wordDisplay" class="word-box">...</div>
     <input type="text" id="userInput" placeholder="اكتب المعنى بالعربي هنا..." autocomplete="off">
     <button onclick="checkAnswer()">تحقق من الإجابة</button>
     <div id="feedback" class="feedback"></div>
-    <div class="score">النقاط: <span id="score">0</span> | الكلمات المتبقية: <span id="remaining">0</span></div>
+    <div class="score-box">
+        <div>النقاط: <span id="score">0</span></div>
+        <div>المتبقي: <span id="remaining">0</span></div>
+    </div>
 </div>
 
 <script>
-    // جزء بسيط من الكلمات (يمكنك استبداله بكامل الـ 287 كلمة)
     const dictionary = [
-const dictionary = [
         {en: "Abandoned", ar: "مهجور"}, {en: "Ace", ar: "خبير"}, {en: "Acid", ar: "حمض"}, {en: "Acknowledging", ar: "اعتراف"}, {en: "Addressing", ar: "معالجة"}, {en: "Admire", ar: "يعجب"}, {en: "Advisor", ar: "مستشار"}, {en: "Ambition", ar: "طموح"}, {en: "Anchor", ar: "مرساة"}, {en: "Anxious", ar: "قلق"},
         {en: "Approach", ar: "نهج"}, {en: "Arise", ar: "تنشأ"}, {en: "Arrived", ar: "وصل"}, {en: "Attempt", ar: "محاولة"}, {en: "Augment", ar: "يعزز"}, {en: "Authority", ar: "سلطة"}, {en: "Badges", ar: "شارات"}, {en: "Bark", ar: "لحاء"}, {en: "Basement", ar: "قبو"}, {en: "Beady", ar: "صغير"},
         {en: "Beacon", ar: "منارة"}, {en: "Beats", ar: "دقات"}, {en: "Behalf", ar: "نيابة"}, {en: "Beliefs", ar: "معتقدات"}, {en: "Benefit", ar: "فائدة"}, {en: "Bet", ar: "رهان"}, {en: "Betrayal", ar: "خيانة"}, {en: "Bidding", ar: "مزايدة"}, {en: "Blame", ar: "لوم"}, {en: "Blessing", ar: "بركة"},
@@ -62,30 +63,42 @@ const dictionary = [
         {en: "Valued", ar: "قيم"}, {en: "Velvet", ar: "مخمل"}, {en: "Victims", ar: "ضحايا"}, {en: "Vigilant", ar: "يقظ"}, {en: "Vulnerable", ar: "ضعيف"}, {en: "Warmth", ar: "دفء"}, {en: "Whispering", ar: "همس"}, {en: "Whom", ar: "الذي"}, {en: "Wide", ar: "واسع"}, {en: "Wild", ar: "بري"},
         {en: "Winding", ar: "متعرج"}, {en: "Wisdom", ar: "حكمة"}, {en: "Wish", ar: "أمنية"}, {en: "Witness", ar: "شاهد"}, {en: "Wreck", ar: "حطام"}, {en: "Writhe", ar: "يتلوى"}, {en: "Yank", ar: "ينتزع"}
     ];
-        // أضفت لك عينة، يمكنك إضافة كل القائمة هنا بنفس التنسيق
-    ];
 
-    let currentWordIndex = 0;
     let score = 0;
-    let words = [...dictionary].sort(() => Math.random() - 0.5);
+    let words = [];
+
+    function initGame() {
+        words = [...dictionary].sort(() => Math.random() - 0.5);
+        score = 0;
+        document.getElementById('score').innerText = score;
+        displayWord();
+    }
 
     function displayWord() {
+        const feedback = document.getElementById('feedback');
+        const input = document.getElementById('userInput');
+        
         if (words.length === 0) {
-            document.querySelector(".card").innerHTML = `<h1>انتهى الاختبار!</h1><p style='font-size:1.5rem'>نقاطك النهائية: ${score}/${dictionary.length}</p><button onclick='location.reload()'>إعادة الاختبار</button>`;
+            document.querySelector(".card").innerHTML = `<h1>🎉 مبروك! أنهيت القائمة</h1><p style='font-size:1.2rem; color:#2c3e50'>نقاطك: ${score}/${dictionary.length}</p><button onclick='location.reload()'>إعادة الاختبار</button>`;
             return;
         }
+        
         document.getElementById('wordDisplay').innerText = words[0].en;
         document.getElementById('remaining').innerText = words.length;
-        document.getElementById('userInput').value = '';
-        document.getElementById('feedback').innerText = '';
+        input.value = '';
+        input.focus();
     }
 
     function checkAnswer() {
-        const userAns = document.getElementById('userInput').value.trim();
+        const input = document.getElementById('userInput');
+        const userAns = input.value.trim();
         const feedback = document.getElementById('feedback');
         
-        if (userAns === words[0].ar || words[0].ar.includes(userAns) && userAns !== "") {
-            feedback.innerText = "✅ صحيح!";
+        if (!userAns) return;
+
+        // التحقق مما إذا كانت الإجابة موجودة ضمن المعاني
+        if (words[0].ar.includes(userAns)) {
+            feedback.innerText = "✅ إجابة صحيحة!";
             feedback.style.color = "#27ae60";
             score++;
         } else {
@@ -95,15 +108,20 @@ const dictionary = [
         
         document.getElementById('score').innerText = score;
         words.shift();
-        setTimeout(displayWord, 1500);
+        
+        // مسح الـ feedback بعد ثانية والانتقال للكلمة التالية
+        setTimeout(() => {
+            feedback.innerText = "";
+            displayWord();
+        }, 1500);
     }
 
-    // تشغيل الإدخال عبر زر Enter
-    document.getElementById('userInput').addEventListener('keypress', function (e) {
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') checkAnswer();
     });
 
-    displayWord();
+    // بدء اللعبة عند التحميل
+    window.onload = initGame;
 </script>
 
 </body>
