@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار كلمات الإنجليزية - خيارات</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
+        .word-box { font-size: 2.5rem; font-weight: bold; color: #3498db; margin: 20px 0; }
+        .options-grid { display: grid; gap: 10px; margin-top: 20px; }
+        .opt-btn { background: #fff; border: 2px solid #ddd; padding: 15px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .opt-btn:hover { border-color: #3498db; background: #ebf5fb; }
+        .correct { background: #2ecc71 !important; color: white; border-color: #2ecc71 !important; }
+        .wrong { background: #e74c3c !important; color: white; border-color: #e74c3c !important; }
+        .stats { margin-top: 20px; font-size: 0.9rem; color: #7f8c8d; display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div style="font-size: 0.9rem; color: #95a5a6;">ما هو المعنى الصحيح لـ:</div>
+    <div id="wordDisplay" class="word-box">تحميل...</div>
+    <div id="options" class="options-grid"></div>
+    <div class="stats">
+        <div>النقاط: <span id="score">0</span></div>
+        <div>المتبقي: <span id="remaining">0</span></div>
+    </div>
+</div>
+
+<script>
+    const dictionary = [
+        {en: "Abandoned", ar: "مهجور"}, {en: "Ace", ar: "خبير"}, {en: "Acid", ar: "حمض"}, {en: "Acknowledging", ar: "اعتراف"}, {en: "Addressing", ar: "معالجة"}, {en: "Admire", ar: "يعجب"}, {en: "Advisor", ar: "مستشار"}, {en: "Ambition", ar: "طموح"}, {en: "Anchor", ar: "مرساة"}, {en: "Anxious", ar: "قلق"},
+        {en: "Approach", ar: "نهج"}, {en: "Arise", ar: "تنشأ"}, {en: "Arrived", ar: "وصل"}, {en: "Attempt", ar: "محاولة"}, {en: "Augment", ar: "يعزز"}, {en: "Authority", ar: "سلطة"}, {en: "Badges", ar: "شارات"}, {en: "Bark", ar: "لحاء"}, {en: "Basement", ar: "قبو"}, {en: "Beady", ar: "صغير"},
+        {en: "Beacon", ar: "منارة"}, {en: "Beats", ar: "دقات"}, {en: "Behalf", ar: "نيابة"}, {en: "Beliefs", ar: "معتقدات"}, {en: "Benefit", ar: "فائدة"}, {en: "Bet", ar: "رهان"}, {en: "Betrayal", ar: "خيانة"}, {en: "Bidding", ar: "مزايدة"}, {en: "Blame", ar: "لوم"}, {en: "Blessing", ar: "بركة"},
+        {en: "Blizzard", ar: "عاصفة ثلجية"}, {en: "Bloom", ar: "تفتح"}, {en: "Blow", ar: "ينفخ"}, {en: "Boomerang", ar: "بوميرانج"}, {en: "Briefcase", ar: "حقيبة"}, {en: "Brutality", ar: "وحشية"}, {en: "Built", ar: "بنيت"}, {en: "Burgeoning", ar: "مزدهر"}, {en: "Bursting", ar: "منفجر"}, {en: "Cackling", ar: "قهقهة"},
+        {en: "Cadet", ar: "ملازم"}, {en: "Cell", ar: "خلية"}, {en: "Certain", ar: "متأكد"}, {en: "Chatting", ar: "دردشة"}, {en: "Choker", ar: "خنق"}, {en: "Civilization", ar: "حضارة"}, {en: "Clash", ar: "تصادم"}, {en: "Cleave", ar: "شق"}, {en: "Clothesline", ar: "حبل غسيل"}, {en: "Clue", ar: "دليل"},
+        {en: "Coffers", ar: "خزائن"}, {en: "Colony", ar: "مستعمرة"}, {en: "Commodity", ar: "سلعة"}, {en: "Concealment", ar: "إخفاء"}, {en: "Conquer", ar: "يغزو"}, {en: "Consequences", ar: "عواقب"}, {en: "Consider", ar: "يعتبر"}, {en: "Constantly", ar: "باستمرار"}, {en: "Continent", ar: "قارة"}, {en: "Convoy", ar: "قافلة"},
+        {en: "Convinced", ar: "مقتنع"}, {en: "Coordinates", ar: "إحداثيات"}, {en: "Corridor", ar: "ممر"}, {en: "Corroded", ar: "متآكل"}, {en: "Cracks", ar: "شقوق"}, {en: "Crane", ar: "رافعة"}, {en: "Creations", ar: "إبداعات"}, {en: "Crossed", ar: "عبر"}, {en: "Crumbled", ar: "انهار"}, {en: "Cryptic", ar: "غامض"},
+        {en: "Culture", ar: "ثقافة"}, {en: "Dazed", ar: "مذهول"}, {en: "Defiled", ar: "دنس"}, {en: "Defiance", ar: "تحد"}, {en: "Den", ar: "عرين"}, {en: "Descended", ar: "ينحدر"}, {en: "Devilish", ar: "شيطاني"}, {en: "Discontent", ar: "استياء"}, {en: "Discretion", ar: "تقدير"}, {en: "Discover", ar: "يكتشف"},
+        {en: "Disturbance", ar: "إزعاج"}, {en: "Drum", ar: "طبل"}, {en: "Effect", ar: "تأثير"}, {en: "Elaborate", ar: "مفصل"}, {en: "Embrace", ar: "يحتضن"}, {en: "Emitting", ar: "تصدر"}, {en: "Encounters", ar: "لقاءات"}, {en: "Entice", ar: "يغري"}, {en: "Entrench", ar: "يرسخ"}, {en: "Equal", ar: "متساوي"},
+        {en: "Eradicates", ar: "يستأصل"}, {en: "Essence", ar: "جوهر"}, {en: "Established", ar: "مؤسس"}, {en: "Ethereal", ar: "أثيري"}, {en: "Eventually", ar: "في النهاية"}, {en: "Execution", ar: "إعدام"}, {en: "Existence", ar: "وجود"}, {en: "Exhibiting", ar: "يعرض"}, {en: "Expands", ar: "يتمدد"}, {en: "Extinct", ar: "منقرض"},
+        {en: "Eyepatch", ar: "رقعة عين"}, {en: "Factions", ar: "فصائل"}, {en: "Faith", ar: "إيمان"}, {en: "Fibers", ar: "ألياف"}, {en: "Figures", ar: "أشخاص"}, {en: "Finalize", ar: "ينهي"}, {en: "Fingertips", ar: "أطراف الأصابع"}, {en: "Flagella", ar: "أسواط"}, {en: "Fled", ar: "هرب"}, {en: "Fleeting", ar: "عابر"},
+        {en: "Floating", ar: "عائم"}, {en: "Flock", ar: "سرب"}, {en: "Flows", ar: "يتدفق"}, {en: "Forces", ar: "قوات"}, {en: "Forcing", ar: "إجبار"}, {en: "Frowns", ar: "يعبس"}, {en: "Further", ar: "إضافي"}, {en: "Generator", ar: "مولد"}, {en: "Generous", ar: "كريم"}, {en: "Geyser", ar: "ينبوع"},
+        {en: "Ginger", ar: "زنجبيل"}, {en: "Glints", ar: "بريق"}, {en: "Glowing", ar: "متوهج"}, {en: "Grander", ar: "أعظم"}, {en: "Granary", ar: "صومعة"}, {en: "Grin", ar: "ابتسامة"}, {en: "Grinder", ar: "مطحنة"}, {en: "Grinding", ar: "طحن"}, {en: "Grit", ar: "عزيمة"}, {en: "Guide", ar: "دليل"},
+        {en: "Gurgling", ar: "قرقرة"}, {en: "Haggling", ar: "مساومة"}, {en: "Handful", ar: "حفنة"}, {en: "Hire me", ar: "استأجرني"}, {en: "Hostile", ar: "عدائي"}, {en: "Hovering", ar: "يحوم"}, {en: "Hut", ar: "كوخ"}, {en: "Impact", ar: "تأثير"}, {en: "Immediate", ar: "فوري"}, {en: "Impervious", ar: "محصن"},
+        {en: "Impress", ar: "يعجب"}, {en: "Impressed", ar: "منبهر"}, {en: "Included", ar: "شامل"}, {en: "Individual", ar: "فرد"}, {en: "Inexplicably", ar: "بشكل لا يفسر"}, {en: "Ingest", ar: "يبتلع"}, {en: "Ingredients", ar: "مكونات"}, {en: "Innately", ar: "بالفطرة"}, {en: "Inspection", ar: "تفتيش"}, {en: "Instinct", ar: "غريزة"},
+        {en: "Institution", ar: "مؤسسة"}, {en: "Instructions", ar: "تعليمات"}, {en: "Intends", ar: "ينوي"}, {en: "Intentions", ar: "نوايا"}, {en: "Interact", ar: "يتفاعل"}, {en: "Invigorated", ar: "منعش"}, {en: "Invokes", ar: "يستدعي"}, {en: "Irony", ar: "سخرية"}, {en: "Jaw", ar: "فك"}, {en: "Jerk", ar: "رعشة"},
+        {en: "Lacking", ar: "يفتقر"}, {en: "Limbless", ar: "بلا أطراف"}, {en: "Managed", ar: "تمكن"}, {en: "Manifest", ar: "واضح"}, {en: "Mantelpiece", ar: "رف الموقد"}, {en: "Meadow", ar: "مرج"}, {en: "Meditated", ar: "تأمل"}, {en: "Migrating", ar: "مهاجر"}, {en: "Missiles", ar: "صواريخ"}, {en: "Mocked", ar: "سخر"},
+        {en: "Monumental", ar: "ضخم"}, {en: "Morals", ar: "أخلاق"}, {en: "Morph", ar: "يتشكل"}, {en: "Mutagens", ar: "مطفرات"}, {en: "Mysterious", ar: "غامض"}, {en: "Nest", ar: "عش"}, {en: "Neutralize", ar: "يحيد"}, {en: "Offense", ar: "إساءة"}, {en: "Offering", ar: "تقديم"}, {en: "Omnivore", ar: "قارت"},
+        {en: "Ooze", ar: "طين"}, {en: "Operation", ar: "عملية"}, {en: "Orbit", ar: "مدار"}, {en: "Ordered", ar: "مرتب"}, {en: "Patience", ar: "صبر"}, {en: "Permission", ar: "إذن"}, {en: "Permanently", ar: "دائمًا"}, {en: "Perplexes", ar: "تحير"}, {en: "Perspective", ar: "منظور"}, {en: "Pinnacle", ar: "قمة"},
+        {en: "Policy", ar: "سياسة"}, {en: "Pondered", ar: "تأمل"}, {en: "Prestige", ar: "هيبة"}, {en: "Principles", ar: "مبادئ"}, {en: "Priorities", ar: "أولويات"}, {en: "Programmed", ar: "مبرمج"}, {en: "Project", ar: "مشروع"}, {en: "Prosperous", ar: "مزدهر"}, {en: "Provides", ar: "يوفر"}, {en: "Proximity", ar: "قرب"},
+        {en: "Quaff", ar: "يشرب"}, {en: "Raise", ar: "يرفع"}, {en: "Rascals", ar: "أوغاد"}, {en: "Realize", ar: "أدرك"}, {en: "Reconciled", ar: "متصالح"}, {en: "Relic", ar: "أثر"}, {en: "Respond", ar: "يستجيب"}, {en: "Retrace", ar: "تتبع"}, {en: "Riot", ar: "شغب"}, {en: "Ruins", ar: "آثار"},
+        {en: "Rummaging", ar: "بحث"}, {en: "Sacred", ar: "مقدس"}, {en: "Sacred bark", ar: "لحاء مقدس"}, {en: "Scattered", ar: "مبعثر"}, {en: "Scratch", ar: "خدش"}, {en: "Searing", ar: "محرق"}, {en: "Secessionist", ar: "انفصالي"}, {en: "Sensation", ar: "إحساس"}, {en: "Sewers", ar: "مجاري"}, {en: "Shame", ar: "عار"},
+        {en: "Sharp", ar: "حاد"}, {en: "Shrug it off", ar: "يتجاهل"}, {en: "Shuffle", ar: "يخلط"}, {en: "Shyness", ar: "خجل"}, {en: "Sight", ar: "بصر"}, {en: "Sludge", ar: "طين"}, {en: "Slugs", ar: "بزاقات"}, {en: "Solar system", ar: "النظام الشمسي"}, {en: "Sophisticated", ar: "متطور"}, {en: "Specialty", ar: "تخصص"},
+        {en: "Species", ar: "أنواع"}, {en: "Specific", ar: "محدد"}, {en: "Spice", ar: "توابل"}, {en: "Spire", ar: "قمة"}, {en: "Spore", ar: "بوغ"}, {en: "Spruce", ar: "أنيق"}, {en: "Stability", ar: "استقرار"}, {en: "Stalk", ar: "ساق"}, {en: "Stance", ar: "موقف"}, {en: "Statue", ar: "تمثال"},
+        {en: "Stature", ar: "مكانة"}, {en: "Stockpile", ar: "مخزون"}, {en: "Strides", ar: "خطوات"}, {en: "Strings", ar: "أوتار"}, {en: "Substance", ar: "مادة"}, {en: "Suddenly", ar: "فجأة"}, {en: "Suggests", ar: "يقترح"}, {en: "Supreme", ar: "أسمى"}, {en: "Surface", ar: "سطح"}, {en: "Surrounded", ar: "محاط"},
+        {en: "Suspicion", ar: "شك"}, {en: "Sustain", ar: "يحافظ"}, {en: "Symptoms", ar: "أعراض"}, {en: "Terrified", ar: "مرعوب"}, {en: "Testament", ar: "وصية"}, {en: "Thick", ar: "كثيف"}, {en: "Thoughts", ar: "أفكار"}, {en: "Throughout", ar: "طوال"}, {en: "Thunderclap", ar: "رعد"}, {en: "Tidepool", ar: "بركة"},
+        {en: "Tied", ar: "مربوط"}, {en: "Tracts", ar: "مساحات"}, {en: "Trait", ar: "صفة"}, {en: "Triggered", ar: "أثار"}, {en: "Trip", ar: "رحلة"}, {en: "Twisting", ar: "لف"}, {en: "Twitch", ar: "تشنج"}, {en: "Ugly", ar: "قبيح"}, {en: "Unify", ar: "يوحد"}, {en: "Useful", ar: "مفيد"},
+        {en: "Valued", ar: "قيم"}, {en: "Velvet", ar: "مخمل"}, {en: "Victims", ar: "ضحايا"}, {en: "Vigilant", ar: "يقظ"}, {en: "Vulnerable", ar: "ضعيف"}, {en: "Warmth", ar: "دفء"}, {en: "Whispering", ar: "همس"}, {en: "Whom", ar: "الذي"}, {en: "Wide", ar: "واسع"}, {en: "Wild", ar: "بري"},
+        {en: "Winding", ar: "متعرج"}, {en: "Wisdom", ar: "حكمة"}, {en: "Wish", ar: "أمنية"}, {en: "Witness", ar: "شاهد"}, {en: "Wreck", ar: "حطام"}, {en: "Writhe", ar: "يتلوى"}, {en: "Yank", ar: "ينتزع"}
+    ];
+
+    let score = 0;
+    let words = [];
+    let canClick = true;
+
+    function init() {
+        words = [...dictionary].sort(() => Math.random() - 0.5);
+        score = 0;
+        update();
+    }
+
+    function update() {
+        if (words.length === 0) {
+            document.querySelector(".card").innerHTML = `<h2>تم الانتهاء!</h2><p>نقاطك: ${score}</p><button onclick="location.reload()" style="background:#3498db;color:white;border:none;padding:15px;border-radius:10px;width:100%">إعادة الاختبار</button>`;
+            return;
+        }
+        canClick = true;
+        const current = words[0];
+        document.getElementById('wordDisplay').innerText = current.en;
+        document.getElementById('score').innerText = score;
+        document.getElementById('remaining').innerText = words.length;
+
+        let options = [current.ar];
+        while (options.length < 4) {
+            let r = dictionary[Math.floor(Math.random() * dictionary.length)].ar;
+            if (!options.includes(r)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const div = document.getElementById('options');
+        div.innerHTML = '';
+        options.forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'opt-btn';
+            b.innerText = o;
+            b.onclick = () => check(o, b);
+            div.appendChild(b);
+        });
+    }
+
+    function check(o, b) {
+        if (!canClick) return;
+        canClick = false;
+        const correct = words[0].ar;
+        if (o === correct) {
+            b.classList.add('correct');
+            score++;
+        } else {
+            b.classList.add('wrong');
+            Array.from(document.getElementsByClassName('opt-btn')).forEach(btn => {
+                if (btn.innerText === correct) btn.classList.add('correct');
+            });
+        }
+        words.shift();
+        setTimeout(update, 1000);
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
