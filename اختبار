@@ -3,32 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار كلمات الإنجليزية - خيارات</title>
+    <title>تحدي المفردات الإنجليزية - المطور</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; }
-        .word-box { font-size: 2.5rem; font-weight: bold; color: #3498db; margin: 20px 0; }
-        .options-grid { display: grid; gap: 10px; margin-top: 20px; }
-        .opt-btn { background: #fff; border: 2px solid #ddd; padding: 15px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
-        .opt-btn:hover { border-color: #3498db; background: #ebf5fb; }
-        .correct { background: #2ecc71 !important; color: white; border-color: #2ecc71 !important; }
-        .wrong { background: #e74c3c !important; color: white; border-color: #e74c3c !important; }
-        .stats { margin-top: 20px; font-size: 0.9rem; color: #7f8c8d; display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 15px; }
+        :root {
+            --primary: #4834d4;
+            --secondary: #686de0;
+            --success: #6ab04c;
+            --danger: #eb4d4b;
+            --bg: #f6f9fc;
+            --text: #2d3436;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 480px;
+            padding: 35px;
+            border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            background: #f1f2f6;
+            padding: 8px 18px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .progress-bar-outer {
+            width: 100%;
+            height: 12px;
+            background: #dfe4ea;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        #progressBarInner {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--success), #badc58);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .word-display {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 15px 0 35px 0;
+            word-wrap: break-word;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #edeff2;
+            padding: 20px;
+            border-radius: 18px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .option-card:hover {
+            border-color: var(--secondary);
+            background: #f8faff;
+            transform: translateY(-3px);
+        }
+
+        .option-card:active { transform: scale(0.97); }
+
+        .correct-anim { background: var(--success) !important; color: white !important; border-color: var(--success) !important; animation: bounce 0.5s; }
+        .wrong-anim { background: var(--danger) !important; color: white !important; border-color: var(--danger) !important; animation: shake 0.4s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .footer-count {
+            margin-top: 30px;
+            color: #95a5a6;
+            font-size: 0.85rem;
+        }
+
+        /* شاشة الفوز */
+        .win-screen h1 { color: var(--success); font-size: 2.5rem; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div style="font-size: 0.9rem; color: #95a5a6;">ما هو المعنى الصحيح لـ:</div>
-    <div id="wordDisplay" class="word-box">تحميل...</div>
-    <div id="options" class="options-grid"></div>
-    <div class="stats">
-        <div>النقاط: <span id="score">0</span></div>
-        <div>المتبقي: <span id="remaining">0</span></div>
+<div class="game-card" id="gameBox">
+    <div class="header-stats">
+        <div class="stat-item">🏆 النقاط: <span id="scoreDisplay">0</span></div>
+        <div class="stat-item">🔥 المستوى 1</div>
+    </div>
+
+    <div class="progress-bar-outer">
+        <div id="progressBarInner"></div>
+    </div>
+
+    <div class="question-label">ما معنى الكلمة التالية؟</div>
+    <div id="wordText" class="word-display">...</div>
+
+    <div id="optionsContainer" class="options-grid"></div>
+
+    <div class="footer-count">
+        تم إنجاز <span id="doneCount">0</span> من أصل <span id="totalCount">0</span> كلمة
     </div>
 </div>
 
 <script>
+    // قاعدة البيانات الكاملة (287 كلمة)
     const dictionary = [
         {en: "Abandoned", ar: "مهجور"}, {en: "Ace", ar: "خبير"}, {en: "Acid", ar: "حمض"}, {en: "Acknowledging", ar: "اعتراف"}, {en: "Addressing", ar: "معالجة"}, {en: "Admire", ar: "يعجب"}, {en: "Advisor", ar: "مستشار"}, {en: "Ambition", ar: "طموح"}, {en: "Anchor", ar: "مرساة"}, {en: "Anxious", ar: "قلق"},
         {en: "Approach", ar: "نهج"}, {en: "Arise", ar: "تنشأ"}, {en: "Arrived", ar: "وصل"}, {en: "Attempt", ar: "محاولة"}, {en: "Augment", ar: "يعزز"}, {en: "Authority", ar: "سلطة"}, {en: "Badges", ar: "شارات"}, {en: "Bark", ar: "لحاء"}, {en: "Basement", ar: "قبو"}, {en: "Beady", ar: "صغير"},
@@ -61,60 +191,84 @@
         {en: "Winding", ar: "متعرج"}, {en: "Wisdom", ar: "حكمة"}, {en: "Wish", ar: "أمنية"}, {en: "Witness", ar: "شاهد"}, {en: "Wreck", ar: "حطام"}, {en: "Writhe", ar: "يتلوى"}, {en: "Yank", ar: "ينتزع"}
     ];
 
+    let currentList = [];
     let score = 0;
-    let words = [];
-    let canClick = true;
+    let lock = false;
+    const totalCount = dictionary.length;
 
-    function init() {
-        words = [...dictionary].sort(() => Math.random() - 0.5);
-        score = 0;
-        update();
+    // محرك صوتي بسيط (بدون ملفات)
+    const audio = new (window.AudioContext || window.webkitAudioContext)();
+    function beep(f, d) {
+        const o = audio.createOscillator();
+        const g = audio.createGain();
+        o.connect(g); g.connect(audio.destination);
+        o.frequency.value = f; g.gain.value = 0.1;
+        o.start(); g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + d);
+        o.stop(audio.currentTime + d);
     }
 
-    function update() {
-        if (words.length === 0) {
-            document.querySelector(".card").innerHTML = `<h2>تم الانتهاء!</h2><p>نقاطك: ${score}</p><button onclick="location.reload()" style="background:#3498db;color:white;border:none;padding:15px;border-radius:10px;width:100%">إعادة الاختبار</button>`;
-            return;
-        }
-        canClick = true;
-        const current = words[0];
-        document.getElementById('wordDisplay').innerText = current.en;
-        document.getElementById('score').innerText = score;
-        document.getElementById('remaining').innerText = words.length;
+    function init() {
+        currentList = [...dictionary].sort(() => Math.random() - 0.5);
+        document.getElementById('totalCount').innerText = totalCount;
+        render();
+    }
 
-        let options = [current.ar];
-        while (options.length < 4) {
-            let r = dictionary[Math.floor(Math.random() * dictionary.length)].ar;
-            if (!options.includes(r)) options.push(r);
+    function render() {
+        if (currentList.length === 0) {
+            finish(); return;
         }
-        options.sort(() => Math.random() - 0.5);
+        lock = false;
+        const q = currentList[0];
+        document.getElementById('wordText').innerText = q.en;
+        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('doneCount').innerText = totalCount - currentList.length;
+        document.getElementById('progressBarInner').style.width = ((totalCount - currentList.length) / totalCount * 100) + "%";
 
-        const div = document.getElementById('options');
-        div.innerHTML = '';
-        options.forEach(o => {
-            const b = document.createElement('button');
-            b.className = 'opt-btn';
-            b.innerText = o;
-            b.onclick = () => check(o, b);
-            div.appendChild(b);
+        let opts = [q.ar];
+        while (opts.length < 4) {
+            let r = dictionary[Math.floor(Math.random() * totalCount)].ar;
+            if (!opts.includes(r)) opts.push(r);
+        }
+        opts.sort(() => Math.random() - 0.5);
+
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+        opts.forEach(o => {
+            const div = document.createElement('div');
+            div.className = 'option-card';
+            div.innerText = o;
+            div.onclick = () => check(o, div);
+            container.appendChild(div);
         });
     }
 
-    function check(o, b) {
-        if (!canClick) return;
-        canClick = false;
-        const correct = words[0].ar;
-        if (o === correct) {
-            b.classList.add('correct');
-            score++;
+    function check(choice, el) {
+        if (lock) return;
+        lock = true;
+        const correct = currentList[0].ar;
+        if (choice === correct) {
+            el.classList.add('correct-anim');
+            beep(600, 0.3); score++;
         } else {
-            b.classList.add('wrong');
-            Array.from(document.getElementsByClassName('opt-btn')).forEach(btn => {
-                if (btn.innerText === correct) btn.classList.add('correct');
+            el.classList.add('wrong-anim');
+            beep(200, 0.3);
+            Array.from(document.getElementsByClassName('option-card')).forEach(card => {
+                if (card.innerText === correct) card.classList.add('correct-anim');
             });
         }
-        words.shift();
-        setTimeout(update, 1000);
+        currentList.shift();
+        setTimeout(render, 1100);
+    }
+
+    function finish() {
+        document.getElementById('gameBox').innerHTML = `
+            <div class="win-screen">
+                <h1>🎉 مبروك!</h1>
+                <p>لقد أتممت مراجعة جميع الكلمات.</p>
+                <div class="word-display">${score} / ${totalCount}</div>
+                <button class="option-card" style="width:100%; background:var(--primary); color:white" onclick="location.reload()">إعادة التحدي</button>
+            </div>
+        `;
     }
 
     window.onload = init;
